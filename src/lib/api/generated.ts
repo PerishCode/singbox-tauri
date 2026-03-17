@@ -201,6 +201,8 @@ export interface SubscriptionRuntimeSnapshot {
   privateKeyPath: string;
   publicKey?: string | null;
   publicKeyPath: string;
+  /** @nullable */
+  subscriptionId?: string | null;
 }
 
 export interface ControlSnapshotResponse {

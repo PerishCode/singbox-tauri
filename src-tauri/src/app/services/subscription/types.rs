@@ -85,6 +85,7 @@ pub struct SubscriptionSourceDefinition {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SubscriptionRuntimeSnapshot {
+    pub subscription_id: Option<String>,
     pub key_state: SubscriptionKeyState,
     pub fetch_state: SubscriptionFetchState,
     pub decrypt_state: SubscriptionDecryptState,

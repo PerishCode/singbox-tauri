@@ -1,6 +1,7 @@
 pub mod file;
 pub mod http;
 
+use super::registry;
 use super::types::{SubscriptionPayload, SubscriptionResolved};
 use crate::runtime_paths::RuntimePaths;
 
@@ -10,9 +11,14 @@ pub fn resolve_source() -> SubscriptionResolved {
         if !trimmed.is_empty() {
             return SubscriptionResolved {
                 source_kind: Some(super::types::SubscriptionSourceKind::File),
+                id: Some("debug-file".to_string()),
+                label: "Debug File Override".to_string(),
+                source_scope: "debugOverride".to_string(),
                 source_profile: infer_profile_name(&trimmed),
                 source_url: None,
                 source_path: Some(trimmed),
+                adapter_kind: super::types::SubscriptionAdapterKind::SingboxRaw,
+                entry_type: super::types::SubscriptionEntryType::EncryptedArtifact,
             };
         }
     }
@@ -22,18 +28,30 @@ pub fn resolve_source() -> SubscriptionResolved {
         if !trimmed.is_empty() {
             return SubscriptionResolved {
                 source_kind: Some(super::types::SubscriptionSourceKind::Http),
+                id: Some("debug-http".to_string()),
+                label: "Debug HTTP Override".to_string(),
+                source_scope: "debugOverride".to_string(),
                 source_profile: infer_profile_name(&trimmed),
                 source_url: Some(trimmed),
                 source_path: None,
+                adapter_kind: super::types::SubscriptionAdapterKind::SingboxRaw,
+                entry_type: super::types::SubscriptionEntryType::EncryptedArtifact,
             };
         }
     }
 
+    let entry = registry::current_entry();
+
     SubscriptionResolved {
-        source_kind: None,
-        source_profile: None,
-        source_url: None,
+        source_kind: Some(entry.source_kind.clone()),
+        id: Some(entry.id.to_string()),
+        label: entry.label.to_string(),
+        source_scope: "registry".to_string(),
+        source_profile: Some(entry.id.to_string()),
+        source_url: Some(entry.source_url.to_string()),
         source_path: None,
+        adapter_kind: entry.adapter_kind,
+        entry_type: entry.entry_type,
     }
 }
 

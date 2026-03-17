@@ -11,9 +11,9 @@ use super::state::{
 };
 use super::transforms::age;
 use super::types::{
-    SubscriptionAdapterKind, SubscriptionApplyState, SubscriptionArtifacts,
-    SubscriptionDecryptState, SubscriptionDefinitionSnapshot, SubscriptionEntryType,
-    SubscriptionFetchState, SubscriptionKeyState, SubscriptionRuntimeSnapshot,
+    SubscriptionApplyState, SubscriptionArtifacts, SubscriptionDecryptState,
+    SubscriptionDefinitionSnapshot, SubscriptionFetchState, SubscriptionKeyState,
+    SubscriptionRuntimeSnapshot, SubscriptionSourceDefinition,
 };
 
 #[derive(Debug, Default)]
@@ -87,21 +87,19 @@ impl SubscriptionService {
 
     pub fn definition_snapshot(&self, _paths: &RuntimePaths) -> SubscriptionDefinitionSnapshot {
         let resolved = sources::resolve_source();
-        let id = resolved.source_profile.clone();
-        let label = resolved
-            .source_profile
-            .clone()
-            .unwrap_or_else(|| "unconfigured subscription".to_string());
 
         SubscriptionDefinitionSnapshot {
-            id,
-            label,
-            entry_type: SubscriptionEntryType::EncryptedArtifact,
-            source_kind: resolved.source_kind,
-            source_profile: resolved.source_profile,
-            adapter_kind: SubscriptionAdapterKind::SingboxRaw,
-            source_url: resolved.source_url,
-            source_path: resolved.source_path,
+            id: resolved.id,
+            label: resolved.label,
+            r#type: resolved.entry_type,
+            scope: resolved.source_scope,
+            profile: resolved.source_profile,
+            adapter: resolved.adapter_kind,
+            source: SubscriptionSourceDefinition {
+                r#type: resolved.source_kind,
+                url: resolved.source_url,
+                path: resolved.source_path,
+            },
         }
     }
 

@@ -137,15 +137,20 @@ export type SubscriptionEntryType = "encryptedArtifact";
 
 export type SubscriptionApplyState = "unknown" | "pendingApply" | "applied";
 
+export type SubscriptionSourceDefinition = {
+  type: SubscriptionSourceKind | null;
+  url: string | null;
+  path: string | null;
+};
+
 export type SubscriptionDefinitionSnapshot = {
   id: string | null;
   label: string;
-  entryType: SubscriptionEntryType;
-  sourceKind: SubscriptionSourceKind | null;
-  sourceProfile: string | null;
-  adapterKind: SubscriptionAdapterKind;
-  sourceUrl: string | null;
-  sourcePath: string | null;
+  type: SubscriptionEntryType;
+  scope: string;
+  profile: string | null;
+  adapter: SubscriptionAdapterKind;
+  source: SubscriptionSourceDefinition;
 };
 
 export type SubscriptionRuntimeSnapshot = {

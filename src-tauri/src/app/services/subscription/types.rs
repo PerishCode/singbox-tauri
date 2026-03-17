@@ -56,12 +56,19 @@ pub enum SubscriptionApplyState {
 pub struct SubscriptionDefinitionSnapshot {
     pub id: Option<String>,
     pub label: String,
-    pub entry_type: SubscriptionEntryType,
-    pub source_kind: Option<SubscriptionSourceKind>,
-    pub source_profile: Option<String>,
-    pub adapter_kind: SubscriptionAdapterKind,
-    pub source_url: Option<String>,
-    pub source_path: Option<String>,
+    pub r#type: SubscriptionEntryType,
+    pub scope: String,
+    pub profile: Option<String>,
+    pub adapter: SubscriptionAdapterKind,
+    pub source: SubscriptionSourceDefinition,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SubscriptionSourceDefinition {
+    pub r#type: Option<SubscriptionSourceKind>,
+    pub url: Option<String>,
+    pub path: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
@@ -107,8 +114,13 @@ pub struct SubscriptionPayload {
 
 #[derive(Debug, Clone)]
 pub struct SubscriptionResolved {
+    pub id: Option<String>,
+    pub label: String,
+    pub entry_type: SubscriptionEntryType,
     pub source_kind: Option<SubscriptionSourceKind>,
+    pub source_scope: String,
     pub source_profile: Option<String>,
+    pub adapter_kind: SubscriptionAdapterKind,
     pub source_url: Option<String>,
     pub source_path: Option<String>,
 }

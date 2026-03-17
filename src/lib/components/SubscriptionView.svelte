@@ -8,12 +8,13 @@
     ? [
         ["id", subscription.id ?? "unconfigured"],
         ["label", subscription.label],
-        ["type", subscription.entryType],
-        ["source kind", subscription.sourceKind ?? "none"],
-        ["source profile", subscription.sourceProfile ?? "unknown"],
-        ["adapter", subscription.adapterKind],
-        ["source url", subscription.sourceUrl ?? "not configured"],
-        ["source path", subscription.sourcePath ?? "not configured"],
+        ["type", subscription.type],
+        ["scope", subscription.scope],
+        ["profile", subscription.profile ?? "unknown"],
+        ["adapter", subscription.adapter],
+        ["source type", subscription.source.type ?? "none"],
+        ["source url", subscription.source.url ?? "not configured"],
+        ["source path", subscription.source.path ?? "not configured"],
       ]
     : [];
 </script>
@@ -28,7 +29,7 @@
   </section>
 
   {#if subscription}
-    <Panel title="Current Entry" badge={subscription.sourceKind ?? "none"} badgeClass="badge-subtle">
+    <Panel title="Current Entry" badge={subscription.source.type ?? "none"} badgeClass="badge-subtle">
       <div class="space-y-3">
         {#each summaryItems as [label, value]}
           <div class="value-card">

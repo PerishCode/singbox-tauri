@@ -52,6 +52,7 @@ pub struct SubscriptionSnapshot {
     pub fetch_state: SubscriptionFetchState,
     pub decrypt_state: SubscriptionDecryptState,
     pub source_kind: Option<SubscriptionSourceKind>,
+    pub source_profile: Option<String>,
     pub adapter_kind: SubscriptionAdapterKind,
     pub source_url: Option<String>,
     pub source_path: Option<String>,
@@ -93,6 +94,7 @@ pub struct SubscriptionPayload {
 #[derive(Debug, Clone)]
 pub struct SubscriptionResolved {
     pub source_kind: Option<SubscriptionSourceKind>,
+    pub source_profile: Option<String>,
     pub source_url: Option<String>,
     pub source_path: Option<String>,
 }

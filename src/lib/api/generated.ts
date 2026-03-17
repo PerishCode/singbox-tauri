@@ -167,6 +167,7 @@ export interface SubscriptionSnapshot {
   publicKey?: string | null;
   publicKeyPath: string;
   sourceKind?: SubscriptionSourceKind | null;
+  sourceProfile?: string | null;
   sourcePath?: string | null;
   sourceUrl?: string | null;
 }

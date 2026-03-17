@@ -27,6 +27,7 @@
         ["decrypt state", subscription.decryptState],
         ["apply state", subscription.applyState],
         ["source kind", subscription.sourceKind ?? "none"],
+        ["source profile", subscription.sourceProfile ?? "unknown"],
         ["adapter", subscription.adapterKind],
         ["source url", subscription.sourceUrl ?? "not configured"],
         ["source path", subscription.sourcePath ?? "not configured"],

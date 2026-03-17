@@ -10,6 +10,7 @@ pub fn resolve_source() -> SubscriptionResolved {
         if !trimmed.is_empty() {
             return SubscriptionResolved {
                 source_kind: Some(super::types::SubscriptionSourceKind::File),
+                source_profile: infer_profile_name(&trimmed),
                 source_url: None,
                 source_path: Some(trimmed),
             };
@@ -21,6 +22,7 @@ pub fn resolve_source() -> SubscriptionResolved {
         if !trimmed.is_empty() {
             return SubscriptionResolved {
                 source_kind: Some(super::types::SubscriptionSourceKind::Http),
+                source_profile: infer_profile_name(&trimmed),
                 source_url: Some(trimmed),
                 source_path: None,
             };
@@ -29,6 +31,7 @@ pub fn resolve_source() -> SubscriptionResolved {
 
     SubscriptionResolved {
         source_kind: None,
+        source_profile: None,
         source_url: None,
         source_path: None,
     }
@@ -52,5 +55,16 @@ pub fn fetch(paths: &RuntimePaths) -> Result<Option<SubscriptionPayload>, String
             Ok(Some(http::fetch(&url)?))
         }
         None => Ok(None),
+    }
+}
+
+fn infer_profile_name(value: &str) -> Option<String> {
+    let candidate = value.rsplit('/').next().unwrap_or(value).trim();
+    let candidate = candidate.strip_suffix(".age").unwrap_or(candidate);
+    let candidate = candidate.strip_suffix(".json").unwrap_or(candidate);
+    if candidate.is_empty() {
+        None
+    } else {
+        Some(candidate.to_string())
     }
 }

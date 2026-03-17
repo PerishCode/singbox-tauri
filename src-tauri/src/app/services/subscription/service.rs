@@ -121,6 +121,7 @@ impl SubscriptionService {
             fetch_state,
             decrypt_state,
             source_kind: resolved.source_kind,
+            source_profile: resolved.source_profile,
             adapter_kind: SubscriptionAdapterKind::SingboxRaw,
             source_url: resolved.source_url,
             source_path: resolved.source_path,

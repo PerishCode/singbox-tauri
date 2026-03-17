@@ -8,6 +8,12 @@
 - `src/`: Tauri frontend.
 - `src-tauri/`: Rust backend, process control, local state.
 
+## Runtime Subscription Layout
+- `subscriptions/subscription.json.age`: last fetched encrypted artifact.
+- `subscriptions/subscription.json`: decrypted artifact for local inspection.
+- `subscriptions/active-config.json`: staged sing-box config produced by the subscription pipeline.
+- `config/runtime.json`: runtime config currently handed to sing-box after apply/restart.
+
 ## Local Commands
 - `./scripts/prepare.sh`
 - `pnpm install`

@@ -140,6 +140,7 @@ export type SubscriptionSnapshot = {
   fetchState: SubscriptionFetchState;
   decryptState: SubscriptionDecryptState;
   sourceKind: SubscriptionSourceKind | null;
+  sourceProfile: string | null;
   adapterKind: SubscriptionAdapterKind;
   sourceUrl: string | null;
   sourcePath: string | null;

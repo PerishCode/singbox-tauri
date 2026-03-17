@@ -126,17 +126,49 @@ export const SubscriptionDecryptState = {
   failed: 'failed',
 } as const;
 
+export type SubscriptionSourceKind = typeof SubscriptionSourceKind[keyof typeof SubscriptionSourceKind];
+
+
+export const SubscriptionSourceKind = {
+  file: 'file',
+  http: 'http',
+} as const;
+
+export type SubscriptionAdapterKind = typeof SubscriptionAdapterKind[keyof typeof SubscriptionAdapterKind];
+
+
+export const SubscriptionAdapterKind = {
+  singboxRaw: 'singboxRaw',
+} as const;
+
+export type SubscriptionApplyState = typeof SubscriptionApplyState[keyof typeof SubscriptionApplyState];
+
+
+export const SubscriptionApplyState = {
+  unknown: 'unknown',
+  pendingApply: 'pendingApply',
+  applied: 'applied',
+} as const;
+
 export interface SubscriptionSnapshot {
   activeConfigPath: string;
+  adapterKind: SubscriptionAdapterKind;
+  applyMessage: string;
+  applyState: SubscriptionApplyState;
   decryptState: SubscriptionDecryptState;
   decryptedPath: string;
   encryptedPath: string;
   fetchState: SubscriptionFetchState;
   keyState: SubscriptionKeyState;
+  lastAttemptAt?: string | null;
   lastError?: string | null;
+  lastSuccessfulRefreshAt?: string | null;
   privateKeyPath: string;
   publicKey?: string | null;
   publicKeyPath: string;
+  sourceKind?: SubscriptionSourceKind | null;
+  sourceProfile?: string | null;
+  sourcePath?: string | null;
   sourceUrl?: string | null;
 }
 

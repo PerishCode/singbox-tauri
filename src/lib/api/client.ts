@@ -5,7 +5,7 @@ import {
   type SingboxRuntimeStatus,
 } from "./generated";
 import { localApiRequest } from "./http";
-import type { LocalNetworkSnapshot } from "../types";
+import type { LocalNetworkSnapshot, SubscriptionSnapshot } from "../types";
 
 const api = getSingboxTauri();
 
@@ -47,4 +47,24 @@ export async function fetchLocalNetworkSnapshot(): Promise<LocalNetworkSnapshot>
     method: "GET",
   });
   return response.network;
+}
+
+export async function refreshSubscription(): Promise<SubscriptionSnapshot> {
+  return localApiRequest<SubscriptionSnapshot>({
+    url: "/api/v1/subscription/refresh",
+    method: "POST",
+  });
+}
+
+export async function applySubscription(): Promise<{
+  subscription: SubscriptionSnapshot;
+  status: SingboxRuntimeStatus;
+}> {
+  return localApiRequest<{
+    subscription: SubscriptionSnapshot;
+    status: SingboxRuntimeStatus;
+  }>({
+    url: "/api/v1/subscription/apply",
+    method: "POST",
+  });
 }

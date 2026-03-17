@@ -2,7 +2,7 @@ use utoipa::OpenApi;
 
 use crate::app::handlers::control::{
     AppEventAccepted, AppEventRequest, ControlSnapshotResponse, ControlStateResponse,
-    HealthResponse, LocalNetworkResponse,
+    HealthResponse, LocalNetworkResponse, SubscriptionApplyResponse,
 };
 use crate::app::services::network::{
     LocalNetworkSnapshot, NetworkConflict, NetworkConflictLevel, NetworkDefaultRoute,
@@ -11,7 +11,8 @@ use crate::app::services::network::{
 };
 use crate::app::services::singbox::{SingboxBootstrapReport, SingboxCheck, SingboxRuntimeStatus};
 use crate::app::services::subscription::{
-    SubscriptionDecryptState, SubscriptionFetchState, SubscriptionKeyState, SubscriptionSnapshot,
+    SubscriptionAdapterKind, SubscriptionApplyState, SubscriptionDecryptState,
+    SubscriptionFetchState, SubscriptionKeyState, SubscriptionSnapshot, SubscriptionSourceKind,
 };
 use crate::app::state::{AppLifecycle, AppRunMode};
 use crate::runtime_paths::{RuntimeMode, RuntimePaths};
@@ -24,6 +25,8 @@ use crate::singbox::process::ProcessStatus;
         crate::app::handlers::control::state,
         crate::app::handlers::control::snapshot,
         crate::app::handlers::control::network,
+        crate::app::handlers::control::refresh_subscription,
+        crate::app::handlers::control::apply_subscription,
         crate::app::handlers::control::start,
         crate::app::handlers::control::stop,
         crate::app::handlers::control::restart,
@@ -36,6 +39,7 @@ use crate::singbox::process::ProcessStatus;
         ControlStateResponse,
         ControlSnapshotResponse,
         LocalNetworkResponse,
+        SubscriptionApplyResponse,
         RuntimePaths,
         RuntimeMode,
         LocalNetworkSnapshot,
@@ -52,6 +56,9 @@ use crate::singbox::process::ProcessStatus;
         SubscriptionKeyState,
         SubscriptionFetchState,
         SubscriptionDecryptState,
+        SubscriptionSourceKind,
+        SubscriptionAdapterKind,
+        SubscriptionApplyState,
         SubscriptionSnapshot,
         SingboxCheck,
         SingboxBootstrapReport,

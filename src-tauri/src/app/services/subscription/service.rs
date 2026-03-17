@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use crate::runtime_paths::RuntimePaths;
 
 use super::adapters::singbox_raw;
+use super::registry;
 use super::sources;
 use super::state::{
     clear_last_error as clear_state_last_error, now_timestamp, persist_refresh_error,
@@ -13,7 +14,7 @@ use super::transforms::age;
 use super::types::{
     SubscriptionApplyState, SubscriptionArtifacts, SubscriptionDecryptState,
     SubscriptionDefinitionSnapshot, SubscriptionFetchState, SubscriptionKeyState,
-    SubscriptionRuntimeSnapshot, SubscriptionSourceDefinition,
+    SubscriptionRegistryItem, SubscriptionRuntimeSnapshot, SubscriptionSourceDefinition,
 };
 
 #[derive(Debug, Default)]
@@ -100,6 +101,20 @@ impl SubscriptionService {
                 url: resolved.source_url,
                 path: resolved.source_path,
             },
+            entries: registry::entries()
+                .into_iter()
+                .map(|entry| SubscriptionRegistryItem {
+                    id: entry.id.to_string(),
+                    label: entry.label.to_string(),
+                    r#type: entry.entry_type,
+                    adapter: entry.adapter_kind,
+                    source: SubscriptionSourceDefinition {
+                        r#type: Some(entry.source_kind),
+                        url: Some(entry.source_url.to_string()),
+                        path: None,
+                    },
+                })
+                .collect(),
         }
     }
 

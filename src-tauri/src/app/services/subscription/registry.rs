@@ -45,3 +45,7 @@ pub fn current_entry() -> SubscriptionRegistryEntry {
         .cloned()
         .unwrap_or_else(|| ENTRIES[0].clone())
 }
+
+pub fn entries() -> Vec<SubscriptionRegistryEntry> {
+    ENTRIES.to_vec()
+}

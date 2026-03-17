@@ -44,4 +44,17 @@
       Subscription state is unavailable.
     </section>
   {/if}
+
+  {#if subscription?.entries?.length}
+    <Panel title="Registry Entries" badge={String(subscription.entries.length)} badgeClass="badge-readable">
+      <div class="space-y-3">
+        {#each subscription.entries as entry}
+          <div class="value-card">
+            <div class="value-label">{entry.id}</div>
+            <code class="value-code">{entry.label} / {entry.type} / {entry.adapter} / {entry.source.type ?? "none"}</code>
+          </div>
+        {/each}
+      </div>
+    </Panel>
+  {/if}
 </div>

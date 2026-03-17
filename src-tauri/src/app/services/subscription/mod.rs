@@ -1,4 +1,5 @@
 pub mod adapters;
+pub mod registry;
 pub mod service;
 pub mod sources;
 pub mod state;
@@ -11,5 +12,6 @@ pub use service::{
 pub use types::{
     SubscriptionAdapterKind, SubscriptionApplyState, SubscriptionDecryptState,
     SubscriptionDefinitionSnapshot, SubscriptionEntryType, SubscriptionFetchState,
-    SubscriptionKeyState, SubscriptionRuntimeSnapshot, SubscriptionSourceKind,
+    SubscriptionKeyState, SubscriptionRuntimeSnapshot, SubscriptionSourceDefinition,
+    SubscriptionSourceKind,
 };

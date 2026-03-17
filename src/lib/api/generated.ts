@@ -158,19 +158,23 @@ export const SubscriptionApplyState = {
 } as const;
 
 export interface SubscriptionDefinitionSnapshot {
-  adapterKind: SubscriptionAdapterKind;
-  entryType: SubscriptionEntryType;
+  adapter: SubscriptionAdapterKind;
   /** @nullable */
   id?: string | null;
   label: string;
   /** @nullable */
-  sourceKind?: SubscriptionSourceKind | null;
+  profile?: string | null;
+  scope: string;
+  source: SubscriptionSourceDefinition;
+  type: SubscriptionEntryType;
+}
+
+export interface SubscriptionSourceDefinition {
   /** @nullable */
-  sourcePath?: string | null;
+  path?: string | null;
+  type?: SubscriptionSourceKind | null;
   /** @nullable */
-  sourceProfile?: string | null;
-  /** @nullable */
-  sourceUrl?: string | null;
+  url?: string | null;
 }
 
 export interface SubscriptionRuntimeSnapshot {

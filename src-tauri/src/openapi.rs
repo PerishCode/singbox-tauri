@@ -13,7 +13,8 @@ use crate::app::services::singbox::{SingboxBootstrapReport, SingboxCheck, Singbo
 use crate::app::services::subscription::{
     SubscriptionAdapterKind, SubscriptionApplyState, SubscriptionDecryptState,
     SubscriptionDefinitionSnapshot, SubscriptionEntryType, SubscriptionFetchState,
-    SubscriptionKeyState, SubscriptionRuntimeSnapshot, SubscriptionSourceKind,
+    SubscriptionKeyState, SubscriptionRuntimeSnapshot, SubscriptionSourceDefinition,
+    SubscriptionSourceKind,
 };
 use crate::app::state::{AppLifecycle, AppRunMode};
 use crate::runtime_paths::{RuntimeMode, RuntimePaths};
@@ -58,6 +59,7 @@ use crate::singbox::process::ProcessStatus;
         SubscriptionFetchState,
         SubscriptionDecryptState,
         SubscriptionSourceKind,
+        SubscriptionSourceDefinition,
         SubscriptionAdapterKind,
         SubscriptionEntryType,
         SubscriptionApplyState,

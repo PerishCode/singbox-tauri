@@ -3,6 +3,30 @@
 :root {
   font-family: "Inter", "SF Pro Display", "Helvetica Neue", sans-serif;
   color: #dbe5f2;
+  --panel-border: rgb(255 255 255 / 0.08);
+  --panel-bg: rgb(15 23 42 / 0.45);
+  --panel-shadow: rgb(2 6 23 / 0.3);
+  --surface-border: rgb(255 255 255 / 0.06);
+  --surface-bg: rgb(2 6 23 / 0.45);
+  --badge-muted-bg: rgb(30 41 59 / 0.8);
+  --badge-muted-fg: rgb(203 213 225);
+  --badge-subtle-bg: rgb(255 255 255 / 0.08);
+  --badge-subtle-fg: rgb(203 213 225);
+  --badge-live-bg: rgb(245 158 11 / 0.12);
+  --badge-live-fg: rgb(253 230 138);
+  --badge-writable-bg: rgb(16 185 129 / 0.12);
+  --badge-writable-fg: rgb(167 243 208);
+  --check-pass-border: rgb(52 211 153 / 0.18);
+  --check-pass-bg: rgb(16 185 129 / 0.08);
+  --check-pass-badge-bg: rgb(52 211 153 / 0.14);
+  --check-pass-badge-fg: rgb(167 243 208);
+  --check-fail-border: rgb(251 113 133 / 0.2);
+  --check-fail-bg: rgb(244 63 94 / 0.08);
+  --check-fail-badge-bg: rgb(248 113 113 / 0.12);
+  --check-fail-badge-fg: rgb(254 205 211);
+  --alert-error-border: rgb(251 113 133 / 0.2);
+  --alert-error-bg: rgb(244 63 94 / 0.1);
+  --alert-error-shadow: rgb(76 5 25 / 0.2);
   background:
     radial-gradient(circle at top left, rgba(31, 111, 235, 0.18), transparent 25%),
     radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 20%),
@@ -21,4 +45,193 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+@layer components {
+  .shell {
+    @apply min-h-screen bg-transparent text-slate-100;
+  }
+
+  .shell-layout {
+    @apply flex min-h-screen;
+  }
+
+  .sidebar {
+    @apply w-64 border-r border-white/8 bg-slate-950/55 px-4 py-5 backdrop-blur-xl;
+  }
+
+  .brand-card {
+    @apply mb-8 flex items-center gap-3 rounded-2xl bg-white/6 p-3 ring-1 ring-white/10;
+  }
+
+  .brand-mark {
+    @apply flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 to-blue-700 font-semibold text-white shadow-lg shadow-sky-900/40;
+  }
+
+  .nav-pill {
+    @apply rounded-2xl bg-sky-500/14 px-4 py-3 text-sm font-medium text-sky-200 ring-1 ring-sky-400/20;
+  }
+
+  .nav-item {
+    @apply block w-full rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-left text-sm font-medium text-slate-300 transition hover:bg-white/8 hover:text-white;
+  }
+
+  .nav-item-active {
+    @apply block w-full rounded-2xl bg-sky-500/14 px-4 py-3 text-left text-sm font-medium text-sky-200 ring-1 ring-sky-400/20;
+  }
+
+  .page-main {
+    @apply flex-1 px-6 py-6 lg:px-8;
+  }
+
+  .page-stack {
+    @apply mx-auto max-w-7xl space-y-6;
+  }
+
+  .panel {
+    @apply rounded-3xl border p-5 shadow-2xl backdrop-blur-xl;
+    border-color: var(--panel-border);
+    background-color: var(--panel-bg);
+    --tw-shadow-color: var(--panel-shadow);
+  }
+
+  .panel-hero {
+    @apply rounded-3xl border px-6 py-6 shadow-2xl backdrop-blur-xl;
+    border-color: var(--panel-border);
+    background-color: var(--panel-bg);
+    --tw-shadow-color: var(--panel-shadow);
+  }
+
+  .panel-header {
+    @apply mb-4 flex items-center justify-between;
+  }
+
+  .panel-title {
+    @apply text-lg font-semibold text-white;
+  }
+
+  .badge {
+    @apply rounded-full px-3 py-1 text-xs;
+  }
+
+  .badge-muted {
+    @apply rounded-full px-3 py-1 text-xs;
+    background-color: var(--badge-muted-bg);
+    color: var(--badge-muted-fg);
+  }
+
+  .badge-subtle {
+    @apply rounded-full px-3 py-1 text-xs;
+    background-color: var(--badge-subtle-bg);
+    color: var(--badge-subtle-fg);
+  }
+
+  .badge-live {
+    @apply rounded-full px-3 py-1 text-xs;
+    background-color: var(--badge-live-bg);
+    color: var(--badge-live-fg);
+  }
+
+  .badge-readable {
+    @apply rounded-full px-3 py-1 text-xs;
+    background-color: var(--badge-muted-bg);
+    color: var(--badge-muted-fg);
+  }
+
+  .badge-writable {
+    @apply rounded-full px-3 py-1 text-xs;
+    background-color: var(--badge-writable-bg);
+    color: var(--badge-writable-fg);
+  }
+
+  .value-card {
+    @apply rounded-2xl border px-4 py-3;
+    border-color: var(--surface-border);
+    background-color: var(--surface-bg);
+  }
+
+  .value-label {
+    @apply mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400;
+  }
+
+  .value-code {
+    @apply block break-all text-sm text-slate-100;
+  }
+
+  .check-card {
+    @apply rounded-2xl border px-4 py-4;
+  }
+
+  .check-card-pass {
+    @apply rounded-2xl border px-4 py-4;
+    border-color: var(--check-pass-border);
+    background-color: var(--check-pass-bg);
+  }
+
+  .check-card-fail {
+    @apply rounded-2xl border px-4 py-4;
+    border-color: var(--check-fail-border);
+    background-color: var(--check-fail-bg);
+  }
+
+  .check-header {
+    @apply mb-3 flex items-center justify-between gap-3;
+  }
+
+  .check-name {
+    @apply text-sm font-semibold text-white;
+  }
+
+  .check-badge-pass {
+    @apply rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em];
+    background-color: var(--check-pass-badge-bg);
+    color: var(--check-pass-badge-fg);
+  }
+
+  .check-badge-fail {
+    @apply rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em];
+    background-color: var(--check-fail-badge-bg);
+    color: var(--check-fail-badge-fg);
+  }
+
+  .check-detail {
+    @apply block break-all text-sm leading-6 text-slate-200;
+  }
+
+  .log-panel {
+    @apply max-h-96 overflow-auto rounded-2xl border p-4 text-xs leading-6 text-slate-200;
+    border-color: var(--surface-border);
+    background-color: var(--surface-bg);
+  }
+
+  .action-row {
+    @apply mt-5 flex flex-wrap gap-3;
+  }
+
+  .action-btn {
+    @apply rounded-xl px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed;
+  }
+
+  .action-btn-primary {
+    @apply rounded-xl bg-sky-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-slate-700;
+  }
+
+  .action-btn-secondary {
+    @apply rounded-xl bg-slate-700 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-600 disabled:cursor-not-allowed disabled:bg-slate-800;
+  }
+
+  .action-btn-success {
+    @apply rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700;
+  }
+
+  .action-btn-ghost {
+    @apply rounded-xl border border-white/12 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .alert-error {
+    @apply rounded-2xl border px-4 py-3 text-sm text-rose-100 shadow-lg;
+    border-color: var(--alert-error-border);
+    background-color: var(--alert-error-bg);
+    --tw-shadow-color: var(--alert-error-shadow);
+  }
 }

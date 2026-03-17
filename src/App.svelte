@@ -1,30 +1,84 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
+  import KeyValueList from "./lib/components/KeyValueList.svelte";
+  import LocalNetworkView from "./lib/components/LocalNetworkView.svelte";
+  import LogBlock from "./lib/components/LogBlock.svelte";
+  import Panel from "./lib/components/Panel.svelte";
+  import HeroHeader from "./lib/components/HeroHeader.svelte";
+  import SidebarBrand from "./lib/components/SidebarBrand.svelte";
+  import SubscriptionView from "./lib/components/SubscriptionView.svelte";
 
-  import type { RuntimePaths, SingboxBootstrapReport } from "./lib/types";
+  import {
+    appendAppEvent as postAppEvent,
+    fetchControlSnapshot,
+    fetchLocalNetworkSnapshot,
+  } from "./lib/api/client";
+  import type {
+    ControlSnapshotResponse,
+    RuntimePaths,
+    SingboxBootstrapReport,
+    SingboxRuntimeStatus,
+  } from "./lib/api/generated";
+  import type { LocalNetworkSnapshot, SubscriptionSnapshot } from "./lib/types";
 
   type RuntimeEntry = [string, string];
 
   let runtimePaths: RuntimePaths | null = null;
   let bootstrap: SingboxBootstrapReport | null = null;
+  let runtimeStatus: SingboxRuntimeStatus | null = null;
   let error: string | null = null;
   let runtimeItems: RuntimeEntry[] = [];
   let bootstrapItems: RuntimeEntry[] = [];
+  let statusItems: RuntimeEntry[] = [];
+  let appLog = "";
+  let singboxLog = "";
+  let sessionRaw = "";
+  let runtimeMetadata = "";
+  let localNetwork: LocalNetworkSnapshot | null = null;
+  let subscription: SubscriptionSnapshot | null = null;
+  let activeTab: "overview" | "network" | "subscription" = "overview";
 
-  onMount(async () => {
+  function applySnapshot(snapshot: ControlSnapshotResponse) {
+    runtimePaths = snapshot.runtime as RuntimePaths;
+    bootstrap = snapshot.bootstrap as SingboxBootstrapReport;
+    runtimeStatus = snapshot.status as SingboxRuntimeStatus;
+    subscription = snapshot.subscription as SubscriptionSnapshot;
+    appLog = snapshot.app_log;
+    singboxLog = snapshot.singbox_log;
+    sessionRaw = snapshot.session_raw;
+    runtimeMetadata = snapshot.runtime_metadata;
+  }
+
+  async function logAppEvent(message: string) {
     try {
-      const [paths, report] = await Promise.all([
-        invoke<RuntimePaths>("get_runtime_paths"),
-        invoke<SingboxBootstrapReport>("bootstrap_singbox"),
-      ]);
+      await postAppEvent(message);
+    } catch {
+      // swallow logging failures during early bootstrap
+    }
+  }
 
-      runtimePaths = paths;
-      bootstrap = report;
+  async function refreshAll() {
+    try {
+      const snapshot = await fetchControlSnapshot();
+      localNetwork = await fetchLocalNetworkSnapshot();
+      applySnapshot(snapshot);
       error = null;
     } catch (err) {
       error = String(err);
+      await logAppEvent(`ui refresh failed: ${error}`);
     }
+  }
+
+  onMount(() => {
+    const intervalId = window.setInterval(() => {
+      void refreshAll();
+    }, 5000);
+
+    void refreshAll();
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   });
 
   $: runtimeItems = runtimePaths
@@ -50,96 +104,89 @@
         ["version", bootstrap.version ?? "unavailable"],
       ] satisfies RuntimeEntry[]
     : [];
+
+  $: statusItems = runtimeStatus
+    ? [
+        ["lifecycle", runtimeStatus.lifecycle],
+        ["mode", runtimeStatus.mode],
+        ["process status", runtimeStatus.processStatus],
+        ["pid", runtimeStatus.pid ? String(runtimeStatus.pid) : "none"],
+        ["config", runtimeStatus.configPath],
+        ["log", runtimeStatus.logPath],
+      ] satisfies RuntimeEntry[]
+    : [];
+
 </script>
 
-<div class="min-h-screen bg-transparent text-slate-100">
-  <div class="flex min-h-screen">
-    <aside class="w-64 border-r border-white/8 bg-slate-950/55 px-4 py-5 backdrop-blur-xl">
-      <div class="mb-8 flex items-center gap-3 rounded-2xl bg-white/6 p-3 ring-1 ring-white/10">
-        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 to-blue-700 font-semibold text-white shadow-lg shadow-sky-900/40">
-          SB
-        </div>
-        <div>
-          <div class="text-sm font-semibold tracking-wide text-white">singbox-tauri</div>
-          <div class="text-xs text-slate-400">local control plane</div>
-        </div>
-      </div>
+<div class="shell">
+  <div class="shell-layout">
+    <SidebarBrand activeTab={activeTab} onSelect={(tab) => (activeTab = tab)} />
 
-      <nav class="space-y-2">
-        <div class="rounded-2xl bg-sky-500/14 px-4 py-3 text-sm font-medium text-sky-200 ring-1 ring-sky-400/20">
-          singbox 控制面板
-        </div>
-      </nav>
-    </aside>
+    <main class="page-main">
+      <div class="page-stack">
+        {#if activeTab === "overview"}
+          <HeroHeader />
 
-    <main class="flex-1 px-6 py-6 lg:px-8">
-      <div class="mx-auto max-w-7xl space-y-6">
-        <header class="rounded-3xl border border-white/8 bg-slate-900/45 px-6 py-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">dashboard bootstrap</p>
-          <h1 class="mt-2 text-3xl font-semibold tracking-tight text-white">singbox 控制面板</h1>
-          <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-            先把当前可读、可写的运行态信息全部摊平。后续只在需要的时候继续细分，不做多余防御。
-          </p>
-        </header>
+          {#if error}
+            <section class="alert-error">
+              {error}
+            </section>
+          {/if}
 
-        {#if error}
-          <section class="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 shadow-lg shadow-rose-950/20">
-            {error}
+          <section class="grid gap-6 xl:grid-cols-2">
+            <Panel title="Runtime Paths" badge="readable" badgeClass="badge-readable">
+              <KeyValueList items={runtimeItems} />
+            </Panel>
+
+            <Panel title="Process Status" badge="live" badgeClass="badge-live">
+              <KeyValueList items={statusItems} />
+            </Panel>
+
+            <Panel title="Lifecycle Bootstrap" badge="writable" badgeClass="badge-writable">
+              <KeyValueList items={bootstrapItems} />
+            </Panel>
           </section>
+
+          <Panel title="Bootstrap Checks" badge="raw state dump" badgeClass="badge-subtle">
+            <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+              {#each bootstrap?.checks ?? [] as check}
+                <article class={check.ok ? "check-card-pass" : "check-card-fail"}>
+                  <div class="check-header">
+                    <strong class="check-name">{check.name}</strong>
+                    <span class={check.ok ? "check-badge-pass" : "check-badge-fail"}>
+                      {check.ok ? "OK" : "FAIL"}
+                    </span>
+                  </div>
+                  <code class="check-detail">{check.detail}</code>
+                </article>
+              {/each}
+            </div>
+          </Panel>
+
+          <section class="grid gap-6 xl:grid-cols-2">
+            <Panel title="App Log" badge="api">
+              <LogBlock content={appLog} />
+            </Panel>
+
+            <Panel title="Sing-box Log" badge="api">
+              <LogBlock content={singboxLog} />
+            </Panel>
+          </section>
+
+          <section class="grid gap-6 xl:grid-cols-2">
+            <Panel title="Session Raw" badge="state/session.json">
+              <LogBlock content={sessionRaw} />
+            </Panel>
+
+            <Panel title="Runtime Metadata" badge="metadata/runtime.json">
+              <LogBlock content={runtimeMetadata} />
+            </Panel>
+          </section>
+        {:else if activeTab === "network"}
+          <LocalNetworkView network={localNetwork} />
+        {:else}
+          <SubscriptionView {subscription} />
         {/if}
-
-        <section class="grid gap-6 xl:grid-cols-2">
-          <div class="rounded-3xl border border-white/8 bg-slate-900/45 p-5 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-            <div class="mb-4 flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-white">Runtime Paths</h2>
-              <span class="rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-300">readable</span>
-            </div>
-            <div class="space-y-3">
-              {#each runtimeItems as [label, value]}
-                <div class="rounded-2xl border border-white/6 bg-slate-950/45 px-4 py-3">
-                  <div class="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
-                  <code class="block break-all text-sm text-slate-100">{value}</code>
-                </div>
-              {/each}
-            </div>
-          </div>
-
-          <div class="rounded-3xl border border-white/8 bg-slate-900/45 p-5 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-            <div class="mb-4 flex items-center justify-between">
-              <h2 class="text-lg font-semibold text-white">Lifecycle Bootstrap</h2>
-              <span class="rounded-full bg-emerald-500/12 px-3 py-1 text-xs text-emerald-200">writable</span>
-            </div>
-            <div class="space-y-3">
-              {#each bootstrapItems as [label, value]}
-                <div class="rounded-2xl border border-white/6 bg-slate-950/45 px-4 py-3">
-                  <div class="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
-                  <code class="block break-all text-sm text-slate-100">{value}</code>
-                </div>
-              {/each}
-            </div>
-          </div>
-        </section>
-
-        <section class="rounded-3xl border border-white/8 bg-slate-900/45 p-5 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-          <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-white">Bootstrap Checks</h2>
-            <span class="rounded-full bg-white/8 px-3 py-1 text-xs text-slate-300">raw state dump</span>
-          </div>
-
-          <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-            {#each bootstrap?.checks ?? [] as check}
-              <article class={`rounded-2xl border px-4 py-4 ${check.ok ? "border-emerald-400/18 bg-emerald-500/8" : "border-rose-400/20 bg-rose-500/8"}`}>
-                <div class="mb-3 flex items-center justify-between gap-3">
-                  <strong class="text-sm font-semibold text-white">{check.name}</strong>
-                  <span class={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${check.ok ? "bg-emerald-400/14 text-emerald-200" : "bg-rose-400/12 text-rose-200"}`}>
-                    {check.ok ? "OK" : "FAIL"}
-                  </span>
-                </div>
-                <code class="block break-all text-sm leading-6 text-slate-200">{check.detail}</code>
-              </article>
-            {/each}
-          </div>
-        </section>
       </div>
     </main>
   </div>

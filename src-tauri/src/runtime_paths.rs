@@ -4,23 +4,31 @@ use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 use tauri::{AppHandle, Manager};
+use utoipa::ToSchema;
 
 pub const RUNTIME_ROOT_ENV: &str = "SINGBOX_TAURI_RUNTIME_ROOT_PATH";
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RuntimePaths {
     pub mode: RuntimeMode,
+    #[schema(value_type = String)]
     pub root: PathBuf,
+    #[schema(value_type = String)]
     pub bin_dir: PathBuf,
+    #[schema(value_type = String)]
     pub config_dir: PathBuf,
+    #[schema(value_type = String)]
     pub logs_dir: PathBuf,
+    #[schema(value_type = String)]
     pub state_dir: PathBuf,
+    #[schema(value_type = String)]
     pub secrets_dir: PathBuf,
+    #[schema(value_type = String)]
     pub subscriptions_dir: PathBuf,
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum RuntimeMode {
     EnvOverride,

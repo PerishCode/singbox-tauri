@@ -10,8 +10,10 @@
 
   import {
     appendAppEvent as postAppEvent,
+    applySubscription as requestSubscriptionApply,
     fetchControlSnapshot,
     fetchLocalNetworkSnapshot,
+    refreshSubscription as requestSubscriptionRefresh,
   } from "./lib/api/client";
   import type {
     ControlSnapshotResponse,
@@ -37,6 +39,9 @@
   let localNetwork: LocalNetworkSnapshot | null = null;
   let subscription: SubscriptionSnapshot | null = null;
   let activeTab: "overview" | "network" | "subscription" = "overview";
+  let subscriptionRefreshPending = false;
+  let subscriptionApplyPending = false;
+  let subscriptionRefreshError: string | null = null;
 
   function applySnapshot(snapshot: ControlSnapshotResponse) {
     runtimePaths = snapshot.runtime as RuntimePaths;
@@ -66,6 +71,36 @@
     } catch (err) {
       error = String(err);
       await logAppEvent(`ui refresh failed: ${error}`);
+    }
+  }
+
+  async function refreshSubscriptionNow() {
+    subscriptionRefreshPending = true;
+    subscriptionRefreshError = null;
+    try {
+      subscription = await requestSubscriptionRefresh();
+      await refreshAll();
+    } catch (err) {
+      subscriptionRefreshError = String(err);
+      await logAppEvent(`subscription refresh failed: ${subscriptionRefreshError}`);
+    } finally {
+      subscriptionRefreshPending = false;
+    }
+  }
+
+  async function applySubscriptionNow() {
+    subscriptionApplyPending = true;
+    subscriptionRefreshError = null;
+    try {
+      const result = await requestSubscriptionApply();
+      subscription = result.subscription;
+      runtimeStatus = result.status;
+      await refreshAll();
+    } catch (err) {
+      subscriptionRefreshError = String(err);
+      await logAppEvent(`subscription apply failed: ${subscriptionRefreshError}`);
+    } finally {
+      subscriptionApplyPending = false;
     }
   }
 
@@ -185,7 +220,14 @@
         {:else if activeTab === "network"}
           <LocalNetworkView network={localNetwork} />
         {:else}
-          <SubscriptionView {subscription} />
+          <SubscriptionView
+            {subscription}
+            refreshPending={subscriptionRefreshPending}
+            applyPending={subscriptionApplyPending}
+            refreshError={subscriptionRefreshError}
+            onRefresh={refreshSubscriptionNow}
+            onApply={applySubscriptionNow}
+          />
         {/if}
       </div>
     </main>

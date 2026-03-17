@@ -72,6 +72,20 @@ impl App {
         Ok(self.subscription.snapshot(&paths))
     }
 
+    pub fn refresh_subscription(&self) -> Result<SubscriptionSnapshot, String> {
+        let paths = self.runtime_paths()?;
+        self.subscription.refresh(&paths)
+    }
+
+    pub fn refresh_and_apply_subscription(
+        &self,
+    ) -> Result<(SubscriptionSnapshot, SingboxRuntimeStatus), String> {
+        let paths = self.runtime_paths()?;
+        let subscription = self.subscription.refresh(&paths)?;
+        let status = self.singbox.restart(&paths)?;
+        Ok((subscription, status))
+    }
+
     pub fn initialize(&self) -> Result<(), String> {
         let paths = self.runtime_paths()?;
         let _ = self

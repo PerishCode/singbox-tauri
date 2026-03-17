@@ -52,6 +52,12 @@ pub struct LocalNetworkResponse {
     pub network: LocalNetworkSnapshot,
 }
 
+#[derive(Debug, Serialize, ToSchema)]
+pub struct SubscriptionApplyResponse {
+    pub subscription: SubscriptionSnapshot,
+    pub status: SingboxRuntimeStatus,
+}
+
 pub fn routes(app: Arc<App>) -> Router {
     Router::new()
         .route("/api/v1/health", get(health))
@@ -61,6 +67,8 @@ pub fn routes(app: Arc<App>) -> Router {
         .route("/api/v1/restart", post(restart))
         .route("/api/v1/snapshot", get(snapshot))
         .route("/api/v1/network", get(network))
+        .route("/api/v1/subscription/refresh", post(refresh_subscription))
+        .route("/api/v1/subscription/apply", post(apply_subscription))
         .route("/api/v1/events", post(append_event))
         .route("/api/v1/logs/app", get(app_log))
         .route("/api/v1/logs/singbox", get(singbox_log))
@@ -175,6 +183,38 @@ pub async fn restart(
 ) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, String)> {
     let status = app.restart_singbox().map_err(internal_error)?;
     Ok(Json(json!(status)))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/subscription/refresh",
+    responses((status = 200, description = "Refreshes the encrypted subscription", body = SubscriptionSnapshot))
+)]
+pub async fn refresh_subscription(
+    State(app): State<Arc<App>>,
+) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, String)> {
+    let app = app.clone();
+    let snapshot = tokio::task::spawn_blocking(move || app.refresh_subscription())
+        .await
+        .map_err(|err| internal_error(format!("subscription refresh task failed: {err}")))?
+        .map_err(internal_error)?;
+    Ok(Json(json!(snapshot)))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/subscription/apply",
+    responses((status = 200, description = "Refreshes the encrypted subscription and restarts sing-box", body = SubscriptionApplyResponse))
+)]
+pub async fn apply_subscription(
+    State(app): State<Arc<App>>,
+) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, String)> {
+    let app = app.clone();
+    let (subscription, status) = tokio::task::spawn_blocking(move || app.refresh_and_apply_subscription())
+        .await
+        .map_err(|err| internal_error(format!("subscription apply task failed: {err}")))?
+        .map_err(internal_error)?;
+    Ok(Json(json!(SubscriptionApplyResponse { subscription, status })))
 }
 
 #[utoipa::path(

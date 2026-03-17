@@ -129,16 +129,29 @@ export type SubscriptionFetchState = "idle" | "fetched" | "failed";
 
 export type SubscriptionDecryptState = "idle" | "ready" | "failed";
 
+export type SubscriptionSourceKind = "file" | "http";
+
+export type SubscriptionAdapterKind = "singboxRaw";
+
+export type SubscriptionApplyState = "unknown" | "pendingApply" | "applied";
+
 export type SubscriptionSnapshot = {
   keyState: SubscriptionKeyState;
   fetchState: SubscriptionFetchState;
   decryptState: SubscriptionDecryptState;
+  sourceKind: SubscriptionSourceKind | null;
+  adapterKind: SubscriptionAdapterKind;
   sourceUrl: string | null;
+  sourcePath: string | null;
   privateKeyPath: string;
   publicKeyPath: string;
   encryptedPath: string;
   decryptedPath: string;
   activeConfigPath: string;
   publicKey: string | null;
+  applyState: SubscriptionApplyState;
+  applyMessage: string;
+  lastAttemptAt: string | null;
+  lastSuccessfulRefreshAt: string | null;
   lastError: string | null;
 };

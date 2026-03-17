@@ -14,7 +14,9 @@ use crate::openapi::ApiDoc;
 use crate::runtime_paths::RuntimePaths;
 use crate::app::services::network::LocalNetworkSnapshot;
 use crate::app::services::singbox::{SingboxBootstrapReport, SingboxRuntimeStatus};
-use crate::app::services::subscription::SubscriptionSnapshot;
+use crate::app::services::subscription::{
+    SubscriptionDefinitionSnapshot, SubscriptionRuntimeSnapshot,
+};
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct HealthResponse {
@@ -31,7 +33,8 @@ pub struct ControlStateResponse {
     pub runtime: RuntimePaths,
     pub bootstrap: SingboxBootstrapReport,
     pub status: SingboxRuntimeStatus,
-    pub subscription: SubscriptionSnapshot,
+    pub subscription: SubscriptionDefinitionSnapshot,
+    pub subscription_runtime: SubscriptionRuntimeSnapshot,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -44,7 +47,8 @@ pub struct ControlSnapshotResponse {
     pub singbox_log: String,
     pub session_raw: String,
     pub runtime_metadata: String,
-    pub subscription: SubscriptionSnapshot,
+    pub subscription: SubscriptionDefinitionSnapshot,
+    pub subscription_runtime: SubscriptionRuntimeSnapshot,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -54,7 +58,7 @@ pub struct LocalNetworkResponse {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct SubscriptionApplyResponse {
-    pub subscription: SubscriptionSnapshot,
+    pub subscription_runtime: SubscriptionRuntimeSnapshot,
     pub status: SingboxRuntimeStatus,
 }
 
@@ -96,13 +100,15 @@ pub async fn state(
     let runtime = app.runtime_paths().map_err(internal_error)?;
     let bootstrap = app.bootstrap_singbox().map_err(internal_error)?;
     let status = app.singbox_status().map_err(internal_error)?;
-    let subscription = app.subscription_snapshot().map_err(internal_error)?;
+    let subscription = app.subscription_definition().map_err(internal_error)?;
+    let subscription_runtime = app.subscription_runtime().map_err(internal_error)?;
 
     Ok(Json(ControlStateResponse {
         runtime,
         bootstrap,
         status,
         subscription,
+        subscription_runtime,
     }))
 }
 
@@ -121,7 +127,8 @@ pub async fn snapshot(
     let singbox_log = app.read_singbox_log().map_err(internal_error)?;
     let session_raw = app.read_session_raw().map_err(internal_error)?;
     let runtime_metadata = app.read_runtime_metadata().map_err(internal_error)?;
-    let subscription = app.subscription_snapshot().map_err(internal_error)?;
+    let subscription = app.subscription_definition().map_err(internal_error)?;
+    let subscription_runtime = app.subscription_runtime().map_err(internal_error)?;
 
     Ok(Json(ControlSnapshotResponse {
         tab: "singbox 控制面板".to_string(),
@@ -133,6 +140,7 @@ pub async fn snapshot(
         session_raw,
         runtime_metadata,
         subscription,
+        subscription_runtime,
     }))
 }
 
@@ -188,7 +196,7 @@ pub async fn restart(
 #[utoipa::path(
     post,
     path = "/api/v1/subscription/refresh",
-    responses((status = 200, description = "Refreshes the encrypted subscription", body = SubscriptionSnapshot))
+    responses((status = 200, description = "Refreshes the encrypted subscription", body = SubscriptionRuntimeSnapshot))
 )]
 pub async fn refresh_subscription(
     State(app): State<Arc<App>>,
@@ -210,11 +218,11 @@ pub async fn apply_subscription(
     State(app): State<Arc<App>>,
 ) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, String)> {
     let app = app.clone();
-    let (subscription, status) = tokio::task::spawn_blocking(move || app.refresh_and_apply_subscription())
+    let (subscription_runtime, status) = tokio::task::spawn_blocking(move || app.refresh_and_apply_subscription())
         .await
         .map_err(|err| internal_error(format!("subscription apply task failed: {err}")))?
         .map_err(internal_error)?;
-    Ok(Json(json!(SubscriptionApplyResponse { subscription, status })))
+    Ok(Json(json!(SubscriptionApplyResponse { subscription_runtime, status })))
 }
 
 #[utoipa::path(

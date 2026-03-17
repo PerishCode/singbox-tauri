@@ -1,1 +1,1 @@
-export type SidebarTab = "overview" | "network" | "subscription";
+export type SidebarTab = "overview" | "network" | "subscription" | "observer";

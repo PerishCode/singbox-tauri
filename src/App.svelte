@@ -5,6 +5,7 @@
   import LogBlock from "./lib/components/LogBlock.svelte";
   import Panel from "./lib/components/Panel.svelte";
   import HeroHeader from "./lib/components/HeroHeader.svelte";
+  import RuntimeObserverView from "./lib/components/RuntimeObserverView.svelte";
   import SidebarBrand from "./lib/components/SidebarBrand.svelte";
   import SubscriptionView from "./lib/components/SubscriptionView.svelte";
 
@@ -21,7 +22,11 @@
     SingboxBootstrapReport,
     SingboxRuntimeStatus,
   } from "./lib/api/generated";
-  import type { LocalNetworkSnapshot, SubscriptionSnapshot } from "./lib/types";
+  import type {
+    LocalNetworkSnapshot,
+    SubscriptionDefinitionSnapshot,
+    SubscriptionRuntimeSnapshot,
+  } from "./lib/types";
 
   type RuntimeEntry = [string, string];
 
@@ -37,8 +42,9 @@
   let sessionRaw = "";
   let runtimeMetadata = "";
   let localNetwork: LocalNetworkSnapshot | null = null;
-  let subscription: SubscriptionSnapshot | null = null;
-  let activeTab: "overview" | "network" | "subscription" = "overview";
+  let subscription: SubscriptionDefinitionSnapshot | null = null;
+  let subscriptionRuntime: SubscriptionRuntimeSnapshot | null = null;
+  let activeTab: "overview" | "network" | "subscription" | "observer" = "overview";
   let subscriptionRefreshPending = false;
   let subscriptionApplyPending = false;
   let subscriptionRefreshError: string | null = null;
@@ -47,7 +53,8 @@
     runtimePaths = snapshot.runtime as RuntimePaths;
     bootstrap = snapshot.bootstrap as SingboxBootstrapReport;
     runtimeStatus = snapshot.status as SingboxRuntimeStatus;
-    subscription = snapshot.subscription as SubscriptionSnapshot;
+    subscription = snapshot.subscription as SubscriptionDefinitionSnapshot;
+    subscriptionRuntime = snapshot.subscription_runtime as SubscriptionRuntimeSnapshot;
     appLog = snapshot.app_log;
     singboxLog = snapshot.singbox_log;
     sessionRaw = snapshot.session_raw;
@@ -78,7 +85,7 @@
     subscriptionRefreshPending = true;
     subscriptionRefreshError = null;
     try {
-      subscription = await requestSubscriptionRefresh();
+      subscriptionRuntime = await requestSubscriptionRefresh();
       await refreshAll();
     } catch (err) {
       subscriptionRefreshError = String(err);
@@ -93,7 +100,7 @@
     subscriptionRefreshError = null;
     try {
       const result = await requestSubscriptionApply();
-      subscription = result.subscription;
+      subscriptionRuntime = result.subscription_runtime;
       runtimeStatus = result.status;
       await refreshAll();
     } catch (err) {
@@ -219,9 +226,12 @@
           </section>
         {:else if activeTab === "network"}
           <LocalNetworkView network={localNetwork} />
+        {:else if activeTab === "subscription"}
+          <SubscriptionView {subscription} />
         {:else}
-          <SubscriptionView
-            {subscription}
+          <RuntimeObserverView
+            runtimeStatus={runtimeStatus}
+            subscriptionRuntime={subscriptionRuntime}
             refreshPending={subscriptionRefreshPending}
             applyPending={subscriptionApplyPending}
             refreshError={subscriptionRefreshError}

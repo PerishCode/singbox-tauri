@@ -133,26 +133,34 @@ export type SubscriptionSourceKind = "file" | "http";
 
 export type SubscriptionAdapterKind = "singboxRaw";
 
+export type SubscriptionEntryType = "encryptedArtifact";
+
 export type SubscriptionApplyState = "unknown" | "pendingApply" | "applied";
 
-export type SubscriptionSnapshot = {
-  keyState: SubscriptionKeyState;
-  fetchState: SubscriptionFetchState;
-  decryptState: SubscriptionDecryptState;
+export type SubscriptionDefinitionSnapshot = {
+  id: string | null;
+  label: string;
+  entryType: SubscriptionEntryType;
   sourceKind: SubscriptionSourceKind | null;
   sourceProfile: string | null;
   adapterKind: SubscriptionAdapterKind;
   sourceUrl: string | null;
   sourcePath: string | null;
+};
+
+export type SubscriptionRuntimeSnapshot = {
+  keyState: SubscriptionKeyState;
+  fetchState: SubscriptionFetchState;
+  decryptState: SubscriptionDecryptState;
   privateKeyPath: string;
   publicKeyPath: string;
   encryptedPath: string;
   decryptedPath: string;
   activeConfigPath: string;
-  publicKey: string | null;
-  applyState: SubscriptionApplyState;
+  publicKey?: string | null;
+  applyState?: SubscriptionApplyState;
   applyMessage: string;
-  lastAttemptAt: string | null;
-  lastSuccessfulRefreshAt: string | null;
-  lastError: string | null;
+  lastAttemptAt?: string | null;
+  lastSuccessfulRefreshAt?: string | null;
+  lastError?: string | null;
 };

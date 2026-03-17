@@ -10,5 +10,6 @@ pub use service::{
 };
 pub use types::{
     SubscriptionAdapterKind, SubscriptionApplyState, SubscriptionDecryptState,
-    SubscriptionFetchState, SubscriptionKeyState, SubscriptionSnapshot, SubscriptionSourceKind,
+    SubscriptionDefinitionSnapshot, SubscriptionEntryType, SubscriptionFetchState,
+    SubscriptionKeyState, SubscriptionRuntimeSnapshot, SubscriptionSourceKind,
 };

@@ -141,6 +141,13 @@ export const SubscriptionAdapterKind = {
   singboxRaw: 'singboxRaw',
 } as const;
 
+export type SubscriptionEntryType = typeof SubscriptionEntryType[keyof typeof SubscriptionEntryType];
+
+
+export const SubscriptionEntryType = {
+  encryptedArtifact: 'encryptedArtifact',
+} as const;
+
 export type SubscriptionApplyState = typeof SubscriptionApplyState[keyof typeof SubscriptionApplyState];
 
 
@@ -150,9 +157,24 @@ export const SubscriptionApplyState = {
   applied: 'applied',
 } as const;
 
-export interface SubscriptionSnapshot {
-  activeConfigPath: string;
+export interface SubscriptionDefinitionSnapshot {
   adapterKind: SubscriptionAdapterKind;
+  entryType: SubscriptionEntryType;
+  /** @nullable */
+  id?: string | null;
+  label: string;
+  /** @nullable */
+  sourceKind?: SubscriptionSourceKind | null;
+  /** @nullable */
+  sourcePath?: string | null;
+  /** @nullable */
+  sourceProfile?: string | null;
+  /** @nullable */
+  sourceUrl?: string | null;
+}
+
+export interface SubscriptionRuntimeSnapshot {
+  activeConfigPath: string;
   applyMessage: string;
   applyState: SubscriptionApplyState;
   decryptState: SubscriptionDecryptState;
@@ -166,10 +188,6 @@ export interface SubscriptionSnapshot {
   privateKeyPath: string;
   publicKey?: string | null;
   publicKeyPath: string;
-  sourceKind?: SubscriptionSourceKind | null;
-  sourceProfile?: string | null;
-  sourcePath?: string | null;
-  sourceUrl?: string | null;
 }
 
 export interface ControlSnapshotResponse {
@@ -180,7 +198,8 @@ export interface ControlSnapshotResponse {
   session_raw: string;
   singbox_log: string;
   status: SingboxRuntimeStatus;
-  subscription: SubscriptionSnapshot;
+  subscription: SubscriptionDefinitionSnapshot;
+  subscription_runtime: SubscriptionRuntimeSnapshot;
   tab: string;
 }
 
@@ -188,7 +207,13 @@ export interface ControlStateResponse {
   bootstrap: SingboxBootstrapReport;
   runtime: RuntimePaths;
   status: SingboxRuntimeStatus;
-  subscription: SubscriptionSnapshot;
+  subscription: SubscriptionDefinitionSnapshot;
+  subscription_runtime: SubscriptionRuntimeSnapshot;
+}
+
+export interface SubscriptionApplyResponse {
+  status: SingboxRuntimeStatus;
+  subscription_runtime: SubscriptionRuntimeSnapshot;
 }
 
 export interface HealthResponse {

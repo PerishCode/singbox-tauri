@@ -12,7 +12,8 @@ use super::state::{
 use super::transforms::age;
 use super::types::{
     SubscriptionAdapterKind, SubscriptionApplyState, SubscriptionArtifacts,
-    SubscriptionDecryptState, SubscriptionFetchState, SubscriptionKeyState, SubscriptionSnapshot,
+    SubscriptionDecryptState, SubscriptionDefinitionSnapshot, SubscriptionEntryType,
+    SubscriptionFetchState, SubscriptionKeyState, SubscriptionRuntimeSnapshot,
 };
 
 #[derive(Debug, Default)]
@@ -24,7 +25,7 @@ impl SubscriptionService {
         age::ensure_keypair(&private_key_path, &public_key_path)
     }
 
-    pub fn refresh(&self, paths: &RuntimePaths) -> Result<SubscriptionSnapshot, String> {
+    pub fn refresh(&self, paths: &RuntimePaths) -> Result<SubscriptionRuntimeSnapshot, String> {
         self.ensure_local_state(paths)?;
         let mut state = read_state_file(paths);
         state.last_attempt_at = Some(now_timestamp());
@@ -34,7 +35,7 @@ impl SubscriptionService {
         let Some(payload) =
             sources::fetch(paths).map_err(|err| persist_refresh_error(paths, &state, err))?
         else {
-            return Ok(self.snapshot(paths));
+            return Ok(self.runtime_snapshot(paths));
         };
 
         let artifacts = artifact_paths(paths);
@@ -81,10 +82,30 @@ impl SubscriptionService {
         state.last_error = None;
         write_state_file(paths, &state)?;
 
-        Ok(self.snapshot(paths))
+        Ok(self.runtime_snapshot(paths))
     }
 
-    pub fn snapshot(&self, paths: &RuntimePaths) -> SubscriptionSnapshot {
+    pub fn definition_snapshot(&self, _paths: &RuntimePaths) -> SubscriptionDefinitionSnapshot {
+        let resolved = sources::resolve_source();
+        let id = resolved.source_profile.clone();
+        let label = resolved
+            .source_profile
+            .clone()
+            .unwrap_or_else(|| "unconfigured subscription".to_string());
+
+        SubscriptionDefinitionSnapshot {
+            id,
+            label,
+            entry_type: SubscriptionEntryType::EncryptedArtifact,
+            source_kind: resolved.source_kind,
+            source_profile: resolved.source_profile,
+            adapter_kind: SubscriptionAdapterKind::SingboxRaw,
+            source_url: resolved.source_url,
+            source_path: resolved.source_path,
+        }
+    }
+
+    pub fn runtime_snapshot(&self, paths: &RuntimePaths) -> SubscriptionRuntimeSnapshot {
         let (private_key_path, public_key_path) = key_paths(paths);
         let artifacts = artifact_paths(paths);
         let public_key = fs::read_to_string(&public_key_path)
@@ -116,15 +137,10 @@ impl SubscriptionService {
                 SubscriptionDecryptState::Idle
             };
 
-        SubscriptionSnapshot {
+        SubscriptionRuntimeSnapshot {
             key_state,
             fetch_state,
             decrypt_state,
-            source_kind: resolved.source_kind,
-            source_profile: resolved.source_profile,
-            adapter_kind: SubscriptionAdapterKind::SingboxRaw,
-            source_url: resolved.source_url,
-            source_path: resolved.source_path,
             private_key_path: private_key_path.display().to_string(),
             public_key_path: public_key_path.display().to_string(),
             encrypted_path: artifacts.encrypted_path.display().to_string(),

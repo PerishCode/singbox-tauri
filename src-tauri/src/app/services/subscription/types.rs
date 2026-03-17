@@ -39,6 +39,12 @@ pub enum SubscriptionAdapterKind {
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
+pub enum SubscriptionEntryType {
+    EncryptedArtifact,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub enum SubscriptionApplyState {
     Unknown,
     PendingApply,
@@ -47,15 +53,23 @@ pub enum SubscriptionApplyState {
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct SubscriptionSnapshot {
-    pub key_state: SubscriptionKeyState,
-    pub fetch_state: SubscriptionFetchState,
-    pub decrypt_state: SubscriptionDecryptState,
+pub struct SubscriptionDefinitionSnapshot {
+    pub id: Option<String>,
+    pub label: String,
+    pub entry_type: SubscriptionEntryType,
     pub source_kind: Option<SubscriptionSourceKind>,
     pub source_profile: Option<String>,
     pub adapter_kind: SubscriptionAdapterKind,
     pub source_url: Option<String>,
     pub source_path: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SubscriptionRuntimeSnapshot {
+    pub key_state: SubscriptionKeyState,
+    pub fetch_state: SubscriptionFetchState,
+    pub decrypt_state: SubscriptionDecryptState,
     pub private_key_path: String,
     pub public_key_path: String,
     pub encrypted_path: String,

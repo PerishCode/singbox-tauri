@@ -6,7 +6,8 @@ use tauri::AppHandle;
 use crate::app::services::network::{LocalNetworkSnapshot, NetworkService};
 use crate::app::services::singbox::{SingboxBootstrapReport, SingboxRuntimeStatus, SingboxService};
 use crate::app::services::subscription::{
-    clear_last_error, write_last_error, SubscriptionService, SubscriptionSnapshot,
+    clear_last_error, write_last_error, SubscriptionDefinitionSnapshot,
+    SubscriptionRuntimeSnapshot, SubscriptionService,
 };
 use crate::runtime_paths::RuntimePaths;
 
@@ -67,19 +68,24 @@ impl App {
         self.network.snapshot()
     }
 
-    pub fn subscription_snapshot(&self) -> Result<SubscriptionSnapshot, String> {
+    pub fn subscription_definition(&self) -> Result<SubscriptionDefinitionSnapshot, String> {
         let paths = self.runtime_paths()?;
-        Ok(self.subscription.snapshot(&paths))
+        Ok(self.subscription.definition_snapshot(&paths))
     }
 
-    pub fn refresh_subscription(&self) -> Result<SubscriptionSnapshot, String> {
+    pub fn subscription_runtime(&self) -> Result<SubscriptionRuntimeSnapshot, String> {
+        let paths = self.runtime_paths()?;
+        Ok(self.subscription.runtime_snapshot(&paths))
+    }
+
+    pub fn refresh_subscription(&self) -> Result<SubscriptionRuntimeSnapshot, String> {
         let paths = self.runtime_paths()?;
         self.subscription.refresh(&paths)
     }
 
     pub fn refresh_and_apply_subscription(
         &self,
-    ) -> Result<(SubscriptionSnapshot, SingboxRuntimeStatus), String> {
+    ) -> Result<(SubscriptionRuntimeSnapshot, SingboxRuntimeStatus), String> {
         let paths = self.runtime_paths()?;
         let subscription = self.subscription.refresh(&paths)?;
         let status = self.singbox.restart(&paths)?;

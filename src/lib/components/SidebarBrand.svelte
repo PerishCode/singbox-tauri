@@ -26,5 +26,8 @@
     <button class={activeTab === "subscription" ? "nav-item-active" : "nav-item"} on:click={() => onSelect("subscription")}>
       Subscription
     </button>
+    <button class={activeTab === "observer" ? "nav-item-active" : "nav-item"} on:click={() => onSelect("observer")}>
+      Runtime Observer
+    </button>
   </nav>
 </aside>

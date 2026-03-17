@@ -30,6 +30,7 @@
 
   $: observerItems = subscriptionRuntime
     ? [
+        ["subscription id", subscriptionRuntime.subscriptionId ?? "unbound"],
         ["key state", subscriptionRuntime.keyState],
         ["fetch state", subscriptionRuntime.fetchState],
         ["decrypt state", subscriptionRuntime.decryptState],

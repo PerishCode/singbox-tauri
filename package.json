@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "svelte-check --tsconfig ./tsconfig.json && vite build",
     "preview": "vite preview",
+    "openapi:gen": "orval --config orval.config.ts",
     "tauri": "tauri"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
+    "axios": "^1.13.6",
     "svelte": "^5.39.6"
   },
   "devDependencies": {
@@ -19,6 +21,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "@tauri-apps/cli": "^2",
     "@types/node": "^25.5.0",
+    "orval": "^8.5.3",
     "svelte-check": "^4.3.1",
     "tailwindcss": "^4.1.13",
     "typescript": "~5.8.3",

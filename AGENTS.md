@@ -11,6 +11,7 @@
 ## Local Commands
 - `./scripts/prepare.sh`
 - `pnpm install`
+- `pnpm openapi:gen`
 - `pnpm tauri dev`
 - `pnpm build`
 - `cargo check --manifest-path src-tauri/Cargo.toml`
@@ -26,3 +27,4 @@
 - Avoid generic proxy-client features unless they directly support the MVP.
 - Use manual restarts for local dev; do not rely on watch mode.
 - Keep runtime preparation unified through `SINGBOX_TAURI_RUNTIME_ROOT_PATH`.
+- Run the local app first before `pnpm openapi:gen`; the OpenAPI schema is fetched from the local control server.

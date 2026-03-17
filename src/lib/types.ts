@@ -163,6 +163,7 @@ export type SubscriptionDefinitionSnapshot = {
 };
 
 export type SubscriptionRuntimeSnapshot = {
+  subscriptionId?: string | null;
   keyState: SubscriptionKeyState;
   fetchState: SubscriptionFetchState;
   decryptState: SubscriptionDecryptState;

@@ -151,6 +151,7 @@ impl SubscriptionService {
             };
 
         SubscriptionRuntimeSnapshot {
+            subscription_id: resolved.id,
             key_state,
             fetch_state,
             decrypt_state,

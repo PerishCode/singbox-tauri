@@ -159,12 +159,21 @@ export const SubscriptionApplyState = {
 
 export interface SubscriptionDefinitionSnapshot {
   adapter: SubscriptionAdapterKind;
+  entries: SubscriptionRegistryItem[];
   /** @nullable */
   id?: string | null;
   label: string;
   /** @nullable */
   profile?: string | null;
   scope: string;
+  source: SubscriptionSourceDefinition;
+  type: SubscriptionEntryType;
+}
+
+export interface SubscriptionRegistryItem {
+  adapter: SubscriptionAdapterKind;
+  id: string;
+  label: string;
   source: SubscriptionSourceDefinition;
   type: SubscriptionEntryType;
 }

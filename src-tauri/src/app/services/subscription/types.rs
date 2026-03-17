@@ -61,6 +61,17 @@ pub struct SubscriptionDefinitionSnapshot {
     pub profile: Option<String>,
     pub adapter: SubscriptionAdapterKind,
     pub source: SubscriptionSourceDefinition,
+    pub entries: Vec<SubscriptionRegistryItem>,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SubscriptionRegistryItem {
+    pub id: String,
+    pub label: String,
+    pub r#type: SubscriptionEntryType,
+    pub adapter: SubscriptionAdapterKind,
+    pub source: SubscriptionSourceDefinition,
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]

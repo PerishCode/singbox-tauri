@@ -143,6 +143,14 @@ export type SubscriptionSourceDefinition = {
   path: string | null;
 };
 
+export type SubscriptionRegistryItem = {
+  id: string;
+  label: string;
+  type: SubscriptionEntryType;
+  adapter: SubscriptionAdapterKind;
+  source: SubscriptionSourceDefinition;
+};
+
 export type SubscriptionDefinitionSnapshot = {
   id: string | null;
   label: string;
@@ -151,6 +159,7 @@ export type SubscriptionDefinitionSnapshot = {
   profile: string | null;
   adapter: SubscriptionAdapterKind;
   source: SubscriptionSourceDefinition;
+  entries: SubscriptionRegistryItem[];
 };
 
 export type SubscriptionRuntimeSnapshot = {

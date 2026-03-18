@@ -11,6 +11,9 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@mateothegreat/svelte5-router": "^2.16.19",
+    "@skeletonlabs/skeleton": "^4.13.0",
+    "@skeletonlabs/skeleton-svelte": "^4.13.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "axios": "^1.13.6",

@@ -164,6 +164,8 @@ export type SubscriptionDefinitionSnapshot = {
 
 export type SubscriptionRuntimeSnapshot = {
   subscriptionId?: string | null;
+  scopedRootPath: string;
+  sourceMetadataPath: string;
   keyState: SubscriptionKeyState;
   fetchState: SubscriptionFetchState;
   decryptState: SubscriptionDecryptState;
@@ -172,6 +174,10 @@ export type SubscriptionRuntimeSnapshot = {
   encryptedPath: string;
   decryptedPath: string;
   activeConfigPath: string;
+  nodesPath: string;
+  rulesPath: string;
+  composeInputPath: string;
+  groupsPath: string;
   publicKey?: string | null;
   applyState?: SubscriptionApplyState;
   applyMessage: string;

@@ -18,7 +18,7 @@ const ENTRIES: &[SubscriptionRegistryEntry] = &[
         label: "Desktop Passive",
         entry_type: SubscriptionEntryType::EncryptedArtifact,
         source_kind: SubscriptionSourceKind::Http,
-        source_url: "https://justvps.liberte.top/sing-box/profiles/desktop-passive.json.age",
+        source_url: "https://justvps.liberte.top/sing-box/config.json.age",
         adapter_kind: SubscriptionAdapterKind::SingboxRaw,
     },
     SubscriptionRegistryEntry {

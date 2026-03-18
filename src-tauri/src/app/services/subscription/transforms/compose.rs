@@ -52,6 +52,13 @@ pub fn compose_config(
         "final",
         compose_input.route.final_outbound.clone(),
     );
+    if !route.contains_key("default_domain_resolver") {
+        insert_optional(
+            &mut route,
+            "default_domain_resolver",
+            infer_default_domain_resolver(compose_input),
+        );
+    }
     insert_optional(&mut route, "rule_set", compose_input.route.rule_set.clone());
     route.insert("rules".to_string(), Value::Array(rules.rules.clone()));
 
@@ -83,4 +90,14 @@ fn insert_optional(target: &mut Map<String, Value>, key: &str, value: Option<Val
     if let Some(value) = value {
         target.insert(key.to_string(), value);
     }
+}
+
+fn infer_default_domain_resolver(compose_input: &SubscriptionComposeInput) -> Option<Value> {
+    compose_input
+        .shared
+        .dns
+        .as_ref()
+        .and_then(|dns| dns.get("final"))
+        .and_then(|value| value.as_str())
+        .map(|value| Value::String(value.to_string()))
 }

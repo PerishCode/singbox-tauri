@@ -190,6 +190,7 @@ export interface SubscriptionRuntimeSnapshot {
   activeConfigPath: string;
   applyMessage: string;
   applyState: SubscriptionApplyState;
+  composeInputPath: string;
   decryptState: SubscriptionDecryptState;
   decryptedPath: string;
   encryptedPath: string;
@@ -198,9 +199,14 @@ export interface SubscriptionRuntimeSnapshot {
   lastAttemptAt?: string | null;
   lastError?: string | null;
   lastSuccessfulRefreshAt?: string | null;
+  groupsPath: string;
+  nodesPath: string;
   privateKeyPath: string;
   publicKey?: string | null;
   publicKeyPath: string;
+  rulesPath: string;
+  scopedRootPath: string;
+  sourceMetadataPath: string;
   /** @nullable */
   subscriptionId?: string | null;
 }

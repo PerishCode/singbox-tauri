@@ -1,4 +1,5 @@
 pub mod adapters;
+pub mod paths;
 pub mod registry;
 pub mod service;
 pub mod sources;

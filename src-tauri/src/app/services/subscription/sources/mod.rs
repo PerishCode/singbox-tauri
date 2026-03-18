@@ -63,17 +63,25 @@ pub fn fetch(paths: &RuntimePaths) -> Result<Option<SubscriptionPayload>, String
                 .source_path
                 .clone()
                 .ok_or_else(|| "missing subscription file path".to_string())?;
-            Ok(Some(file::fetch(paths, &path)?))
+            Ok(Some(fetch_file(paths, &path)?))
         }
         Some(super::types::SubscriptionSourceKind::Http) => {
             let url = resolved
                 .source_url
                 .clone()
                 .ok_or_else(|| "missing subscription URL".to_string())?;
-            Ok(Some(http::fetch(&url)?))
+            Ok(Some(fetch_http(&url)?))
         }
         None => Ok(None),
     }
+}
+
+pub fn fetch_file(paths: &RuntimePaths, path: &str) -> Result<SubscriptionPayload, String> {
+    file::fetch(paths, path)
+}
+
+pub fn fetch_http(url: &str) -> Result<SubscriptionPayload, String> {
+    http::fetch(url)
 }
 
 fn infer_profile_name(value: &str) -> Option<String> {

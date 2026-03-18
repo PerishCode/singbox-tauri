@@ -1,7 +1,7 @@
 <script lang="ts">
   export let title: string;
   export let badge: string | null = null;
-  export let badgeClass = "badge-muted";
+  export let badgeClass = "badge preset-tonal-surface";
   export let panelClass = "panel";
 </script>
 
